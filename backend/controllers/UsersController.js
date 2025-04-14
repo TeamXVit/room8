@@ -9,7 +9,7 @@ export async function createUser(request, response){
                 error: "All required fields must be filled."
             }); 
         }
-        await Users.create({name, password, email, phoneno, instagram, bio});
+        await Users.create({name, password, email, phoneno, instagram, bio, roomid:null});
         return response.status(200).send({
             message:"User account created successfully"
         });
@@ -55,6 +55,29 @@ export async function login(request, response){
             }
         });
 
+    }catch(err){
+        return response.status(500).send({
+            error : `Internal Server Error : ${err.message}`
+        });
+    }
+}
+
+export async function getdata(request, response){
+    try{
+        const email = request.user.email; // from JWT token
+        const user = await Users.findOne({ email });
+        if (!user) {
+            return response.status(404).send({
+                error: "User not found."
+            });
+        }
+        return response.status(200).send({
+                name: user.name,
+                email: user.email,
+                phoneno: user.phoneno,
+                instagram: user.instagram,
+                bio: user.bio
+            });
     }catch(err){
         return response.status(500).send({
             error : `Internal Server Error : ${err.message}`
