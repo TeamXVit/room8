@@ -1,24 +1,31 @@
-import { Button, SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { 
+    Pressable,
+    SafeAreaView, 
+    StyleSheet, 
+    Text, 
+    View 
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFonts, Poppins_400Regular, Poppins_500Medium } from "@expo-google-fonts/poppins";
+
 
 export default function HomeScreen({ navigation }) {
-    const handleLogout = async () => {
-        try {
-            await AsyncStorage.removeItem("jwt-token");
-            navigation.replace("Login");
-        } catch (e) {
-            console.log("Error removing token", e);
-        }
+    let [fontsLoaded] = useFonts({
+        Poppins_400Regular,
+        Poppins_500Medium
+    });
+    
+    if (!fontsLoaded) {
+        return null;
     };
 
     return (
         <SafeAreaView style={styles.pageContainer}>
             <View style={styles.topContainer}>
-                <Text style={{ color: "white", fontSize: 24 }}>Home</Text>
-                <Button title="Logout" onPress={handleLogout} />
+                <Text style={{ color: "white", fontSize: 24, fontFamily: "Poppins_500Medium" }}>Home</Text>
             </View>
-            <View style={styles.outerContainer}>
-                {/* Main content here */}
+            <View style={styles.bottomContainer}>
+                
             </View>
         </SafeAreaView>
     );
@@ -27,17 +34,19 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
     pageContainer: {
         height: "100%",
-        backgroundColor: "#0e3e3e",
+        backgroundColor: "#00d09e",
         alignItems: "center",
     },
     topContainer: {
-        height: "25%",
+        height: "30%",
         justifyContent: "center",
         alignItems: "center",
     },
-    outerContainer: {
-        height: "75%",
+    bottomContainer: {
+        height: "70%",
         width: "100%",
-        backgroundColor: "white",
+        backgroundColor: "honeydew",
+        borderTopLeftRadius: 70,
+        borderTopRightRadius: 70
     },
 });

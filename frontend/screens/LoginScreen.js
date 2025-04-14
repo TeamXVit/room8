@@ -36,7 +36,6 @@ export default function LoginScreen({ navigation, onLoginSuccess }) {
     };      
 
     const handleLogin = () => {
-        console.log(formData);
         axios.post("http://192.168.137.1:8000/profile/login", formData)
         .then(async (res) => {
             await AsyncStorage.setItem("jwt-token", JSON.stringify(res.data.token));
