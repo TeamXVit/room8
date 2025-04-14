@@ -7,7 +7,7 @@ export default function authenticateToken(request, response, next){
         error: "Access Denied, No Token Provided or Invalid Format."
     });
     try{
-        const decoded = jwt.verify(token.split(" ")[1], process.env.JWTKEY);
+        const decoded = jwt.verify(token.split(" ")[1], process.env.JWT_SECRET);
         request.user = decoded;
         next();
     }catch(err){
