@@ -1,4 +1,5 @@
 import { 
+    Alert,
     Pressable,
     SafeAreaView, 
     StyleSheet, 
@@ -7,13 +8,15 @@ import {
     View 
 } from "react-native";
 import { useState } from "react";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFonts, Poppins_500Medium } from "@expo-google-fonts/poppins";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
 
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, onLoginSuccess }) {
     const [formData, setFormData] = useState({
         email: "",
         password: ""
@@ -24,7 +27,7 @@ export default function LoginScreen({ navigation }) {
         Poppins_500Medium,
     });
     
-      if (!fontsLoaded) {
+    if (!fontsLoaded) {
         return null;
     };
 
@@ -33,13 +36,24 @@ export default function LoginScreen({ navigation }) {
     };      
 
     const handleLogin = () => {
-        navigation.replace("MainApp");
+        console.log(formData);
+        axios.post("http://192.168.137.1:8000/profile/login", formData)
+        .then(async (res) => {
+            await AsyncStorage.setItem("jwt-token", JSON.stringify(res.data.token));
+            if (onLoginSuccess) {
+                onLoginSuccess(res.data.token); 
+            } else {
+                navigation.replace("Option"); 
+            }
+        })
+        .catch((e) => Alert.alert("Login Failed", "Please check your credentials."));
     };
+    
 
     const handlePasswordVisibilty = () => {
         setPasswordVisibility(!passwordVisibility)
     };
-      
+
     return (
         <SafeAreaView style={styles.pageContainer}>
             <View style={styles.textContainer}>
@@ -66,7 +80,7 @@ export default function LoginScreen({ navigation }) {
                         secureTextEntry={!passwordVisibility}
                     />
                         <Pressable onPress={handlePasswordVisibilty}>
-                            {passwordVisibility ? <Entypo name="eye-with-line" size={24} color="black" /> : <Entypo name="eye" size={24} color="black" /> }
+                            {passwordVisibility ? <Entypo name="eye" size={24} color="black" /> : <Entypo name="eye-with-line" size={24} color="black" /> }
                         </Pressable>
                     </View>
                 </View>
@@ -74,14 +88,17 @@ export default function LoginScreen({ navigation }) {
                     <Pressable 
                         style={{ backgroundColor: "#0e3e3e", width: 150, borderRadius: 20, }}
                         onPress={handleLogin}
+                        disabled={!formData.email || !formData.password}
                     >
                         <Text style={{ marginVertical: 7, marginHorizontal: "auto", color: "white", fontSize: 18 }}>Login</Text>
                     </Pressable>
-                    <Text style={{ fontFamily: "Poppins_500Medium" }}>Forgot Password</Text>
+                    <Pressable>
+                        <Text style={{ fontFamily: "Poppins_500Medium" }}>Forgot Password ?</Text>
+                    </Pressable>
                 </View>
                 <View>
                     <Text style={{ textAlign: "center" }}>or sign up with</Text>
-                    <View style={{ marginVertical: 15, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 15 }}>
+                    <View style={{ marginVertical: 15, display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 25 }}>
                         <Pressable>
                             <AntDesign name="google" size={36} color="black" />
                         </Pressable>
@@ -113,7 +130,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontFamily: "Poppins_500Medium",
-        fontSize: 25,
+        fontSize: 30,
         color: "#dff7e2"
     },
     outerContainer: {
