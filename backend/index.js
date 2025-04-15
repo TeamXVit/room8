@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import userRouter from "./routes/UsersRouter.js";
 import roomRouter from "./routes/RoomsRouter.js";
+import expenseRouter from "./routes/ExpensesRouter.js";
 import "dotenv/config";
 
 const app = express();
@@ -15,6 +16,7 @@ app.use(express.json());
 // Routes
 app.use("/profile", userRouter);
 app.use("/room", roomRouter);
+app.use("/expense", expenseRouter);
 
 // Root route
 app.get("/", (req, res) => {

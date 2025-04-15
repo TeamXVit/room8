@@ -2,11 +2,11 @@ import express from "express";
 import { createRoom, requestJoin, acceptRoommate, getroomdata } from "../controllers/RoomsController.js";
 import authenticateToken from "../middlewares/authMiddleware.js";
 
-const router = express.Router();
+const roomRouter = express.Router();
 
-router.post("/create", authenticateToken, createRoom);         // Only logged-in users can create
-router.post("/request", authenticateToken, requestJoin);                          // Open for join requests
-router.post("/accept", authenticateToken, acceptRoommate);     // Only room leader can accept
-router.get("/:roomid", authenticateToken, getroomdata);
+roomRouter.post("/create", authenticateToken, createRoom);         // Only logged-in users can create
+roomRouter.post("/request", authenticateToken, requestJoin);                          // Open for join requests
+roomRouter.post("/accept", authenticateToken, acceptRoommate);     // Only room leader can accept
+roomRouter.get("/:roomid", authenticateToken, getroomdata);
 
-export default router;
+export default roomRouter;
