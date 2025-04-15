@@ -9,6 +9,11 @@ const usersSchema = new mongoose.Schema({
     phoneno:{type:String, require: true, unique: true},
     instagram:{type:String, require: true},
     bio:{type:String, require: true},
+    credibility: {
+        totalChores: { type: Number, default: 0 },
+        completedOnTime: { type: Number, default: 0 },
+        score: { type: Number, default: 100 } // updated after each chore verification
+    }
 });
 
 export const Users =  new mongoose.model("Users",usersSchema,"Users");

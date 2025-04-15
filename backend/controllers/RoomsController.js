@@ -1,4 +1,5 @@
 import { Rooms } from "../models/Rooms.js"
+import { Users } from "../models/Users.js";
 
 export async function createRoom(request, response) {
     try {
@@ -62,13 +63,33 @@ export async function acceptRoommate(request, response) {
     }
 }
 
-export async function getroomdata(request, response){
-    try{
-        const roomid = request.params.roomid;
+export async function getroomdata(req, res) {
+    try {
+        const roomid = req.params.roomid;
         const room = await Rooms.findOne({ roomid });
-        if (!room) return response.status(404).send({ error: "Room not found" });
-        return response.status(200).send(room);
-    }catch(err){
-        return response.status(500).send({ error: err.message });
+
+        if (!room) return res.status(404).send({ error: "Room not found" });
+
+        // fetch names of roommates
+        const roommatesWithNames = await Promise.all(
+            room.roommates.map(async (member) => {
+                const user = await Users.findOne({ email: member.email });
+                return {
+                    email: member.email,
+                    name: user?.name || "Unknown",
+                    confirmed: member.confirmed
+                };
+            })
+        );
+
+        // include enhanced roommates list
+        const roomData = {
+            ...room.toObject(),
+            roommates: roommatesWithNames
+        };
+
+        return res.status(200).send(roomData);
+    } catch (err) {
+        return res.status(500).send({ error: err.message });
     }
 }
