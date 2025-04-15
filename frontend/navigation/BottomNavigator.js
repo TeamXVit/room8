@@ -4,9 +4,11 @@ import HomeScreen from "../screens/HomeScreen";
 import ExpenseScreen from "../screens/ExpenseScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import ChoreScreen from "../screens/ChoreScreen";
+import NoteScreen from "../screens/NotesScreen";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Foundation from '@expo/vector-icons/Foundation';
 
 
 const Tab = createBottomTabNavigator();
@@ -56,6 +58,17 @@ export default function BottomNavigator() {
                 options={{
                     tabBarIcon: ({ color, size }) => (
                         <FontAwesome5 name="broom" size={size} color={color} />
+                    ),
+                    tabBarActiveTintColor: "#00d09e",
+                    tabBarInactiveTintColor: "black"
+                }}
+            />
+            <Tab.Screen 
+                name="Notes" 
+                component={NoteScreen} 
+                options={{
+                    tabBarIcon: ({ color, size }) => (
+                        <Foundation name="clipboard-notes" size={size} color={color} />
                     ),
                     tabBarActiveTintColor: "#00d09e",
                     tabBarInactiveTintColor: "black"

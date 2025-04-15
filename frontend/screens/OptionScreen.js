@@ -1,4 +1,5 @@
 import { 
+    Alert,
     Image,
     Pressable,
     SafeAreaView, 
@@ -45,37 +46,49 @@ export default function OptionScreen({ navigation }) {
         }
     };
 
-    const token = getData();
-
     const handleBackNavigation = () => {
         choice !== "" ? setChoice("") : navigation.replace("Login")
     };
 
-    const handleCreateRoom = () => {
+    const handleCreateRoom = async () => {
+        const token = await getData(); 
+    
         axios.post("http://192.168.137.1:8000/room/create", formData, {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(async (res) => {
             console.log(res.data);
-            await AsyncStorage.setItem("roomID", res.data);
+            try {
+                await AsyncStorage.setItem("roomID", res.data);
+                navigation.replace("MainApp");
+            } catch (e) {
+                Alert.alert("Error", "Error fetching the room ID. Please enter the details correctly!");
+            }
         })
-        .catch((e) => console.log(e))
+        .catch((e) => console.log(e));
     };
 
-    const handleJoinRoom = () => {
+    const handleJoinRoom = async () => {
+        const token = await getData(); 
+
         axios.post("http://192.168.137.1:8000/room/request", { roomid: roomCode }, {
             headers: { Authorization: `Bearer ${token}` }
         })
         .then(async (res) => {
             console.log(res.data);
-            await AsyncStorage.setItem("roomID", res.data);
+            try {
+                await AsyncStorage.setItem("roomID", res.data.roomid);
+                navigation.replace("MainApp");
+            } catch (e) {
+                Alert.alert("Error", "Error fetching the room ID. Please check if you have entered the code correctly!")
+            }
         })
         .catch((e) => console.log(e))
     };
 
     return (
         <SafeAreaView style={styles.pageContainer}>
-            <Pressable style={{ position: "fixed", top: 35, right: "39%" }} onPress={handleBackNavigation}>
+            <Pressable style={{ position: "fixed", top: 40, right: "39%" }} onPress={handleBackNavigation}>
                 <Text style={{ color: "white", fontSize: 15, fontFamily: "Poppins_500Medium" }}>{choice !== "" ? "Back" : "Login"}</Text>
             </Pressable>
             <View style={styles.topContainer}>
@@ -93,7 +106,7 @@ export default function OptionScreen({ navigation }) {
                         placeholder="Room Code"
                         style={styles.textInput}
                         value={roomCode}
-                        onChange={(e) => setRoomCode(e.target.value)}
+                        onChangeText={setRoomCode}
                     />
                     <Pressable 
                         style={{ backgroundColor: "#052224", paddingHorizontal: 20, paddingVertical: 7, width: 170, borderRadius: 25, marginHorizontal: "auto", marginTop: 20 }}
@@ -109,13 +122,13 @@ export default function OptionScreen({ navigation }) {
                         style={styles.textInput} 
                         placeholder="Enter the name of your room"
                         value={formData.roomid}
-                        onChange={(text) => handleInputChange("roomid", text)}
+                        onChangeText={(text) => handleInputChange("roomid", text)}
                     />
                     <TextInput 
                         style={styles.textInput} 
                         placeholder="Enter the address of your room"
                         value={formData.address}
-                        onChange={(text) => handleInputChange("address", text)}
+                        onChangeText={(text) => handleInputChange("address", text)}
                     />
                     <Pressable 
                         style={{ backgroundColor: "#052224", paddingHorizontal: 15, paddingVertical: 7, width: 170, borderRadius: 25, marginHorizontal: "auto", marginTop: 20 }}
