@@ -4,8 +4,8 @@ import authenticateToken from "../middlewares/authMiddleware.js";
 
 const choreRouter = express.Router();
 
-choreRouter.post("/create", createChore);
-choreRouter.get("/:roomid", getRoomChores);
-choreRouter.patch("/:choreId/complete", markChoreDone);
+choreRouter.post("/create",authenticateToken, createChore);
+choreRouter.get("/:roomid",authenticateToken, getRoomChores);
+choreRouter.patch("/:choreId/complete",authenticateToken, markChoreDone);
 
 export default choreRouter;
