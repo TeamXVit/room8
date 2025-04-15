@@ -46,7 +46,7 @@ export async function getRoomChores(req, res) {
 export async function markChoreDone(req, res) {
     try {
         const { choreId } = req.params;
-        const { email } = req.body;
+        const { email } = req.user;
 
         const chore = await Chores.findById(choreId);
         if (chore.assignedTo !== email) {
