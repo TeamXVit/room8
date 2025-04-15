@@ -50,7 +50,6 @@ export default function ExpenseScreen() {
                 headers: { Authorization: `Bearer ${parsedToken}` }
             });
 
-            console.log("Expenses fetched:", response.data[0].shares);
             setExpenses(response.data);
         } catch (error) {
             console.error("Failed to fetch expenses:", error.response?.data || error.message);

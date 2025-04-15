@@ -7,7 +7,9 @@ import {
     Text, 
     View 
 } from "react-native";
+import { useCallback, useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
 import { useFonts, Poppins_400Regular, Poppins_500Medium } from "@expo-google-fonts/poppins";
 import Feather from "@expo/vector-icons/Feather";
 import Foundation from '@expo/vector-icons/Foundation';
@@ -17,10 +19,52 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import barchart from ".././assets/barchart.png";
 
 export default function HomeScreen() {
+    const [chores, setChores] = useState([]);
+    const [expenses, setExpenses] = useState([]);
+
     let [fontsLoaded] = useFonts({
         Poppins_400Regular,
         Poppins_500Medium
     });
+
+    const fetchChores = async () => {
+        try {
+            const token = await AsyncStorage.getItem("jwt-token");
+            const roomid = await AsyncStorage.getItem("roomID");
+            const parsedToken = token?.startsWith('"') ? JSON.parse(token) : token;
+            const parsedRoomID = roomid?.startsWith('"') ? JSON.parse(roomid) : roomid;
+
+            const response = await axios.get(`http://192.168.137.1:8000/chore/${parsedRoomID}`, {
+                headers: { Authorization: `Bearer ${parsedToken}` }
+            });
+            console.log(response.data);
+            setChores((response.data || []).map(chore => chore.title));
+        } catch (error) {
+            console.error("Failed to fetch chores:", error.response?.data || error.message);
+        }
+    };
+
+    const fetchExpenses = useCallback(async () => {
+        try {
+            const token = await AsyncStorage.getItem("jwt-token");
+            const roomid = await AsyncStorage.getItem("roomID");
+            const parsedToken = token?.startsWith('"') ? JSON.parse(token) : token;
+            const parsedRoomID = roomid?.startsWith('"') ? JSON.parse(roomid) : roomid;
+
+            const response = await axios.get(`http://192.168.137.1:8000/expense/roomexpenses/${parsedRoomID}`, {
+                headers: { Authorization: `Bearer ${parsedToken}` }
+            });
+
+            setExpenses(response.data);
+        } catch (error) {
+            console.error("Failed to fetch expenses:", error.response?.data || error.message);
+        }
+    }, []);  
+
+    useEffect(() => {
+        fetchExpenses();
+        fetchChores();
+    }, [])
     
     if (!fontsLoaded) {
         return null;
@@ -33,7 +77,7 @@ export default function HomeScreen() {
                     <View>
                         <Text style={{ color: "honeydew", fontSize: 18, fontFamily: "Poppins_500Medium" }}>Hi! Welcome back</Text>
                     </View>
-                    <Pressable style={{ backgroundColor: "honeydew", padding: 5, borderRadius: 50 }}>
+                    <Pressable style={{ backgroundColor: "honeydew", padding: 5, borderRadius: 50 }} disabled>
                         <Feather name="bell" size={21} color="black" />
                     </Pressable>
                 </View>
@@ -46,21 +90,20 @@ export default function HomeScreen() {
                             <Foundation name="home" size={24} color="black" />
                             <Text style={{ fontFamily: "Poppins_500Medium", fontSize: 16 }}>MH3 802-A</Text>
                         </View>
-                        <Text style={{ fontFamily: "Poppins_400Regular", fontSize: 16 }}>3000</Text>
                     </View>
                     <View style={{ flexDirection: "column", height: "65%", gap: 10 }}>
-                        <View style={{ width: "90%", flexDirection: "row", justifyContent: "space-between", marginHorizontal: "auto" }}>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>Total Room Expenses</Text>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>2500</Text>
-                        </View>
-                        <View style={{ width: "90%", flexDirection: "row", justifyContent: "space-between", marginHorizontal: "auto" }}>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>Amount you owe</Text>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>500</Text>
-                        </View>
-                        <View style={{ width: "90%", flexDirection: "row", justifyContent: "space-between", marginHorizontal: "auto" }}>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>Amount you're owed</Text>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>750</Text>
-                        </View>
+                    <View style={{ height: "65%", gap: 10, overflow: "scroll" }}>
+                        {expenses.length > 0 ? (
+                            expenses.map((expense, index) => (
+                                <View key={index} style={{ flexDirection: "row", justifyContent: "space-between", marginHorizontal: 18 }}>
+                                    <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>💸 {expense.title}</Text>
+                                    <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>₹{expense.amount}</Text>
+                                </View>
+                            ))
+                        ) : (
+                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular", marginLeft: 18 }}>No expenses found.</Text>
+                        )}
+                    </View>
                     </View>
                 </View>
                 <View style={styles.card}>
@@ -75,12 +118,10 @@ export default function HomeScreen() {
                 <View style={styles.card}>
                     <View style={{ flexDirection: "row", gap: 15, width: "90%", marginHorizontal: "auto", marginVertical: 10 }}>
                         <MaterialCommunityIcons name="broom" size={24} color="black" />
-                        <Text style={{ fontFamily: "Poppins_500Medium", fontSize: 16 }}>Today's chores: Hari Prasath</Text>
+                        <Text style={{ fontFamily: "Poppins_500Medium", fontSize: 16 }}>Today's chores: Sajid</Text>
                     </View>
-                    <View style={{ justifyContent: "space-between", height: "65%" }}>
-                        <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular", marginLeft: 18 }}>👉🏼 Do the dishes</Text>
-                        <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular", marginLeft: 18 }}>👉🏼 Get bags from laundry</Text>
-                        <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular", marginLeft: 18 }}>👉🏼 Clean balcony</Text>
+                    <View style={{ height: "65%", gap: 10 }}>
+                        {chores.length > 0 && chores.map((chore, index) => <Text key={index} style={{ fontSize: 16, fontFamily: "Poppins_400Regular", marginLeft: 18 }}>👉🏼{chore}</Text>)}
                     </View>
                 </View>
                 <View style={styles.card}>
@@ -90,15 +131,19 @@ export default function HomeScreen() {
                     </View>
                     <View style={{ justifyContent: "space-between", height: "65%" }}>
                         <View style={{ width: "90%", marginHorizontal: "auto", flexDirection: "row", justifyContent: "space-between" }}>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ You</Text>
+                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ Sajid</Text>
                             <Text>10</Text>
                         </View>
                         <View style={{ width: "90%", marginHorizontal: "auto", flexDirection: "row", justifyContent: "space-between" }}>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ You</Text>
+                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ Rohith</Text>
                             <Text>10</Text>
                         </View>
                         <View style={{ width: "90%", marginHorizontal: "auto", flexDirection: "row", justifyContent: "space-between" }}>
-                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ You</Text>
+                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ Ganesh</Text>
+                            <Text>10</Text>
+                        </View>
+                        <View style={{ width: "90%", marginHorizontal: "auto", flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={{ fontSize: 16, fontFamily: "Poppins_400Regular" }}>⭐ Hari Prasath</Text>
                             <Text>10</Text>
                         </View>
                     </View>
@@ -137,6 +182,7 @@ const styles = StyleSheet.create({
     card: {
         width: "90%",
         height: 155,
+        maxHeight: 250,
         backgroundColor: "#dff7e2",
         borderRadius: 35,
         marginHorizontal: "auto",

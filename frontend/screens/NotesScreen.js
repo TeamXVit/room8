@@ -35,7 +35,7 @@ export default function NoteScreen() {
             const response = await axios.get(`http://192.168.137.1:8000/roomnote/${parsedRoomID}`, {
                 headers: { Authorization: `Bearer ${parsedToken}` }
             });
-
+            console.log(response.data);
             setNotes(response.data || []);
         } catch (e) {
             console.error("Error fetching notes:", e.response?.data || e.message);
@@ -86,6 +86,7 @@ export default function NoteScreen() {
             <ScrollView style={styles.bottomContainer} contentContainerStyle={{ padding: 20 }}>
                 {notes.map((note, index) => (
                     <View key={index} style={styles.card}>
+                        <Text style={{ fontFamily: "Poppins_500Medium", fontSize: 16 }}>{note.createdBy}</Text>
                         <Text style={{ fontFamily: "Poppins_400Regular", fontSize: 14 }}>{note.content}</Text>
                     </View>
                 ))}
@@ -94,7 +95,6 @@ export default function NoteScreen() {
             <Pressable style={styles.addNoteButton} onPress={() => setModalVisible(true)}>
                 <FontAwesome name="plus" size={24} color="honeydew" />
             </Pressable>
-
             <Modal
                 animationType="slide"
                 transparent={true}

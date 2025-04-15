@@ -39,7 +39,7 @@ export default function ChoreScreen() {
             const response = await axios.get(`http://192.168.137.1:8000/chore/${parsedRoomID}`, {
                 headers: { Authorization: `Bearer ${parsedToken}` }
             });
-
+            console.log(response.data);
             setChores((response.data || []).map(chore => ({ ...chore, completed: false })));
         } catch (error) {
             console.error("Failed to fetch chores:", error.response?.data || error.message);
