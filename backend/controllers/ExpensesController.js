@@ -2,9 +2,9 @@ import {Expenses} from "../models/Expenses.js"
 
 export async function createExpense(req, res) {
     try {
-        const { roomid, title, amount, createdBy, shares } = req.body;
-
-        if (!roomid || !title || !amount || !createdBy || !shares) {
+        const { roomid, title, amount, shares } = req.body;
+        const createdBy = req.user.email;
+        if (!roomid || !title || !amount || !shares) {
             return res.status(400).send({ error: "Missing required fields" });
         }
 
