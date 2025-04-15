@@ -4,13 +4,10 @@ const choreSchema = new mongoose.Schema({
     roomid: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String },
-    assignedTo: { type: String, required: true }, // roommate's email
-    createdBy: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
-    dueDate: { type: Date, required: true },
-    markedDone: { type: Boolean, default: false },
-    verified: { type: Boolean, default: false },
-    completedAt: { type: Date }
+    createdBy: { type: String, required: true }, // creator email
+    doneBy: { type: String, default: null }, // person who marked done
+    done: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now, expires: '7d' } // auto-delete after 7 days
 });
 
-export const Chores = new mongoose.model("Chores", choreSchema, "Chores");
+export const Chores = mongoose.model("Chores", choreSchema, "Chores");
