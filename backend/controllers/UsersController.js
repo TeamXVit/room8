@@ -3,13 +3,13 @@ import jwt from "jsonwebtoken";
 
 export async function createUser(request, response){
     try{
-        const {name, password, email, phoneno, instagram, bio } = request.body;
-        if(!name || !password || !email || !phoneno || !instagram || !bio){
+        const {name, password, email, phoneno, instagram, bio, upi } = request.body;
+        if(!name || !password || !email || !phoneno || !instagram || !bio || !upi){
             return response.status(400).send({
                 error: "All required fields must be filled."
             }); 
         }
-        await Users.create({name, password, email, phoneno, instagram, bio, roomid:null});
+        await Users.create({name, password, email, phoneno, instagram, upi, bio});
         return response.status(200).send({
             message:"User account created successfully"
         });
